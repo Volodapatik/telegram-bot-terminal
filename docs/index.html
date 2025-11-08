@@ -17,6 +17,7 @@
             color: #00ff00;
             min-height: 100vh;
             padding: 10px;
+            line-height: 1.4;
         }
 
         .terminal {
@@ -25,7 +26,7 @@
             border: 2px solid #00ff00;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
         }
 
         /* Хедер */
@@ -51,6 +52,7 @@
         .terminal-title {
             font-weight: bold;
             font-size: 16px;
+            text-shadow: 0 0 5px #00ff00;
         }
 
         .status-display {
@@ -152,6 +154,10 @@
             transform: scale(0.98);
         }
 
+        .btn:hover {
+            opacity: 0.9;
+        }
+
         .btn-start {
             background: #004400;
             color: #00ff00;
@@ -214,6 +220,35 @@
             background: #00ff00;
             border-radius: 3px;
         }
+
+        /* Десктопна версія */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .terminal {
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            
+            .terminal-header {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+            
+            .monitor-panel {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .control-panel {
+                flex-direction: row;
+            }
+            
+            .console {
+                height: 250px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -223,7 +258,7 @@
             <div class="header-top">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span class="terminal-icon">📟</span>
-                    <span class="terminal-title">BOT TERMINAL</span>
+                    <span class="terminal-title">BOT CONTROL TERMINAL v2.0</span>
                 </div>
                 <div class="status-display">
                     <span class="status-indicator pulse" id="statusIndicator">●</span>
@@ -236,7 +271,11 @@
         <div class="console" id="console">
             <div class="log-entry">
                 <span class="timestamp" id="currentTime">00:00:00</span>
-                <span class="log-message">🟢 Terminal initialized</span>
+                <span class="log-message">🟢 Terminal initialized successfully</span>
+            </div>
+            <div class="log-entry">
+                <span class="timestamp">></span>
+                <span class="log-message">📡 Ready to connect to bot server</span>
             </div>
         </div>
 
@@ -272,7 +311,7 @@
             </button>
             <button class="btn btn-refresh" id="refreshBtn">
                 <span class="btn-icon">🔄</span>
-                REFRESH STATUS
+                REFRESH
             </button>
             <button class="btn btn-clear" id="clearBtn">
                 <span class="btn-icon">🗑️</span>
@@ -303,6 +342,9 @@
                 this.setupEventListeners();
                 this.log('System ready - waiting for commands');
                 this.updateMemoryUsage();
+                
+                // Оновлюємо пам'ять кожні 5 секунд
+                setInterval(() => this.updateMemoryUsage(), 5000);
             }
 
             updateTime() {
@@ -338,6 +380,7 @@
             async startBot() {
                 this.log('🚀 Starting bot...');
                 this.setStatus('STARTING', 'yellow');
+                this.disableButtons(true);
                 
                 try {
                     // Симуляція запиту до сервера
@@ -348,14 +391,18 @@
                     this.log('✅ Bot started successfully');
                     this.updateBotStatus('RUNNING');
                     document.getElementById('connectionStatus').textContent = '🟢 Connected to server';
+                    this.log('📞 Bot is now listening for Telegram messages');
                 } catch (error) {
                     this.setStatus('ERROR', '#ff4444');
                     this.log('❌ Failed to start bot: ' + error.message);
                 }
+                
+                this.disableButtons(false);
             }
 
             async stopBot() {
                 this.log('🛑 Stopping bot...');
+                this.disableButtons(true);
                 
                 try {
                     await this.simulateRequest('stop');
@@ -364,9 +411,12 @@
                     this.log('✅ Bot stopped successfully');
                     this.updateBotStatus('STOPPED');
                     document.getElementById('connectionStatus').textContent = '🔴 Not connected to server';
+                    this.log('💤 Bot is now offline');
                 } catch (error) {
                     this.log('❌ Failed to stop bot: ' + error.message);
                 }
+                
+                this.disableButtons(false);
             }
 
             refreshStatus() {
@@ -383,6 +433,14 @@
                         <span class="log-message">🟢 Log cleared</span>
                     </div>
                 `;
+            }
+
+            disableButtons(disabled) {
+                const buttons = document.querySelectorAll('.btn');
+                buttons.forEach(btn => {
+                    btn.disabled = disabled;
+                    btn.style.opacity = disabled ? 0.6 : 1;
+                });
             }
 
             setStatus(status, color) {
@@ -428,12 +486,12 @@
             async simulateRequest(action) {
                 return new Promise((resolve, reject) => {
                     setTimeout(() => {
-                        if (Math.random() > 0.2) { // 80% success rate
+                        if (Math.random() > 0.1) { // 90% success rate
                             resolve();
                         } else {
                             reject(new Error('Server timeout'));
                         }
-                    }, 1500);
+                    }, 2000);
                 });
             }
         }
