@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Telegram Bot Terminal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="terminal">
+        <!-- Хедер термінала -->
+        <div class="terminal-header">
+            <div class="header-left">
+                <span class="terminal-icon">📟</span>
+                <span class="terminal-title">BOT CONTROL TERMINAL v2.0</span>
+            </div>
+            <div class="header-right">
+                <span class="status-indicator" id="statusIndicator">●</span>
+                <span class="status-text" id="statusText">DISCONNECTED</span>
+            </div>
+        </div>
+
+        <!-- Основна консоль -->
+        <div class="console" id="console">
+            <div class="log-entry">
+                <span class="timestamp" id="currentTime"></span>
+                <span class="log-message">🟢 System initialized</span>
+            </div>
+            <div class="log-entry">
+                <span class="timestamp">></span>
+                <span class="log-message">📡 Waiting for connection...</span>
+            </div>
+        </div>
+
+        <!-- Панель моніторингу -->
+        <div class="monitor-panel">
+            <div class="metric">
+                <span class="metric-label">BOT STATUS</span>
+                <span class="metric-value" id="botStatus">OFFLINE</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">UPTIME</span>
+                <span class="metric-value" id="uptime">00:00:00</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">REQUESTS</span>
+                <span class="metric-value" id="requestCount">0</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">MEMORY</span>
+                <span class="metric-value" id="memoryUsage">-- MB</span>
+            </div>
+        </div>
+
+        <!-- Панель керування -->
+        <div class="control-panel">
+            <button class="btn btn-start" id="startBtn">
+                <span class="btn-icon">🚀</span>
+                START BOT
+            </button>
+            <button class="btn btn-stop" id="stopBtn">
+                <span class="btn-icon">🛑</span>
+                STOP BOT
+            </button>
+            <button class="btn btn-refresh" id="refreshBtn">
+                <span class="btn-icon">🔄</span>
+                REFRESH
+            </button>
+            <button class="btn btn-clear" id="clearBtn">
+                <span class="btn-icon">🗑️</span>
+                CLEAR LOG
+            </button>
+        </div>
+
+        <!-- Статус бар -->
+        <div class="status-bar">
+            <span class="status-item" id="connectionStatus">🔴 Not connected to server</span>
+            <span class="status-item" id="lastUpdate">Last update: --</span>
+            <span class="status-item" id="version">v2.0</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
