@@ -1,0 +1,211 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+    color: #00ff00;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.terminal {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #000000;
+    border: 2px solid #00ff00;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+}
+
+/* Хедер */
+.terminal-header {
+    background: linear-gradient(90deg, #002200 0%, #004400 100%);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #00ff00;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.terminal-icon {
+    font-size: 24px;
+}
+
+.terminal-title {
+    font-weight: bold;
+    font-size: 18px;
+    text-shadow: 0 0 10px #00ff00;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-indicator {
+    font-size: 20px;
+    animation: pulse 2s infinite;
+}
+
+.status-text {
+    font-size: 14px;
+    color: #ff4444;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Консоль */
+.console {
+    height: 300px;
+    background: #001100;
+    padding: 20px;
+    overflow-y: auto;
+    border-bottom: 1px solid #003300;
+}
+
+.log-entry {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.timestamp {
+    color: #888;
+    font-size: 12px;
+    min-width: 80px;
+}
+
+.log-message {
+    color: #00ff00;
+}
+
+/* Панель моніторингу */
+.monitor-panel {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    padding: 20px;
+    background: #001a00;
+    border-bottom: 1px solid #003300;
+}
+
+.metric {
+    text-align: center;
+    padding: 15px;
+    background: #002200;
+    border-radius: 8px;
+    border: 1px solid #004400;
+}
+
+.metric-label {
+    display: block;
+    font-size: 12px;
+    color: #88ff88;
+    margin-bottom: 5px;
+}
+
+.metric-value {
+    display: block;
+    font-size: 18px;
+    font-weight: bold;
+    color: #00ff00;
+}
+
+/* Панель керування */
+.control-panel {
+    padding: 20px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    background: #001100;
+}
+
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 0, 0.4);
+}
+
+.btn-start {
+    background: #004400;
+    color: #00ff00;
+}
+
+.btn-stop {
+    background: #440000;
+    color: #ff4444;
+}
+
+.btn-refresh {
+    background: #444400;
+    color: #ffff00;
+}
+
+.btn-clear {
+    background: #222222;
+    color: #ffffff;
+}
+
+.btn-icon {
+    font-size: 16px;
+}
+
+/* Статус бар */
+.status-bar {
+    background: #002200;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    border-top: 1px solid #003300;
+}
+
+.status-item {
+    color: #88ff88;
+}
+
+/* Скрелли */
+.console::-webkit-scrollbar {
+    width: 8px;
+}
+
+.console::-webkit-scrollbar-track {
+    background: #001100;
+}
+
+.console::-webkit-scrollbar-thumb {
+    background: #00ff00;
+    border-radius: 4px;
+}
+
+.console::-webkit-scrollbar-thumb:hover {
+    background: #88ff88;
+}
