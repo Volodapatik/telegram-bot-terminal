@@ -275,7 +275,7 @@
             </div>
             <div class="log-entry">
                 <span class="timestamp">></span>
-                <span class="log-message">📡 Ready to connect to bot server</span>
+                <span class="log-message">📡 Ready to connect to Termux server</span>
             </div>
         </div>
 
@@ -321,7 +321,7 @@
 
         <!-- Статус бар -->
         <div class="status-bar">
-            <span class="status-item" id="connectionStatus">🔴 Not connected to server</span>
+            <span class="status-item" id="connectionStatus">🔴 Not connected to Termux</span>
             <span class="status-item" id="lastUpdate">Last update: --:--:--</span>
         </div>
     </div>
@@ -333,6 +333,7 @@
                 this.botRunning = false;
                 this.startTime = null;
                 this.requestCount = 0;
+                this.termuxConnector = new TermuxConnector();
                 this.initializeTerminal();
             }
 
@@ -340,11 +341,29 @@
                 this.updateTime();
                 setInterval(() => this.updateTime(), 1000);
                 this.setupEventListeners();
-                this.log('System ready - waiting for commands');
+                this.log('System ready - waiting for Termux connection');
                 this.updateMemoryUsage();
                 
-                // Оновлюємо пам'ять кожні 5 секунд
                 setInterval(() => this.updateMemoryUsage(), 5000);
+                
+                // Автоматично шукаємо Termux при запуску
+                setTimeout(() => this.autoDiscoverTermux(), 2000);
+            }
+
+            async autoDiscoverTermux() {
+                this.log('🔍 Searching for Termux server...');
+                const url = await this.termuxConnector.discoverTermux();
+                if (url) {
+                    this.log('✅ Found Termux server: ' + url);
+                    this.setStatus('READY', '#00ff00');
+                    document.getElementById('connectionStatus').textContent = '🟢 Connected to Termux';
+                    this.isConnected = true;
+                } else {
+                    this.log('❌ Termux not found');
+                    this.log('💡 Run: python server.py in Termux');
+                    this.setStatus('OFFLINE', '#ff4444');
+                    this.isConnected = false;
+                }
             }
 
             updateTime() {
@@ -378,20 +397,26 @@
             }
 
             async startBot() {
-                this.log('🚀 Starting bot...');
+                if (!this.isConnected) {
+                    this.log('❌ Not connected to Termux');
+                    this.log('💡 Make sure server.py is running');
+                    return;
+                }
+
+                this.log('🚀 Starting bot on Termux...');
                 this.setStatus('STARTING', 'yellow');
                 this.disableButtons(true);
                 
                 try {
-                    // Симуляція запиту до сервера
-                    await this.simulateRequest('start');
+                    const result = await this.termuxConnector.startBot();
+                    
                     this.botRunning = true;
                     this.startTime = new Date();
                     this.setStatus('ONLINE', '#00ff00');
-                    this.log('✅ Bot started successfully');
+                    this.log('✅ Bot started successfully!');
                     this.updateBotStatus('RUNNING');
-                    document.getElementById('connectionStatus').textContent = '🟢 Connected to server';
-                    this.log('📞 Bot is now listening for Telegram messages');
+                    this.log('📞 Bot is listening for Telegram messages');
+                    this.log('🎵 Send YouTube links to your bot');
                 } catch (error) {
                     this.setStatus('ERROR', '#ff4444');
                     this.log('❌ Failed to start bot: ' + error.message);
@@ -401,16 +426,21 @@
             }
 
             async stopBot() {
+                if (!this.isConnected) {
+                    this.log('❌ Not connected to Termux');
+                    return;
+                }
+
                 this.log('🛑 Stopping bot...');
                 this.disableButtons(true);
                 
                 try {
-                    await this.simulateRequest('stop');
+                    const result = await this.termuxConnector.stopBot();
+                    
                     this.botRunning = false;
                     this.setStatus('OFFLINE', '#ff4444');
                     this.log('✅ Bot stopped successfully');
                     this.updateBotStatus('STOPPED');
-                    document.getElementById('connectionStatus').textContent = '🔴 Not connected to server';
                     this.log('💤 Bot is now offline');
                 } catch (error) {
                     this.log('❌ Failed to stop bot: ' + error.message);
@@ -424,6 +454,7 @@
                 document.getElementById('requestCount').textContent = this.requestCount;
                 this.log('🔄 Status refreshed');
                 this.updateMemoryUsage();
+                this.autoDiscoverTermux(); // Перевіряємо з'єднання
             }
 
             clearLog() {
@@ -481,18 +512,76 @@
                 console.appendChild(logEntry);
                 console.scrollTop = console.scrollHeight;
             }
+        }
 
-            // Тимчасова симуляція запитів
-            async simulateRequest(action) {
-                return new Promise((resolve, reject) => {
-                    setTimeout(() => {
-                        if (Math.random() > 0.1) { // 90% success rate
-                            resolve();
-                        } else {
-                            reject(new Error('Server timeout'));
+        // Termux Connector - зв'язок з телефоном
+        class TermuxConnector {
+            constructor() {
+                this.termuxUrl = null;
+                this.isConnected = false;
+            }
+
+            async discoverTermux() {
+                // Список можливих URL для Termux
+                const possibleUrls = [
+                    'http://localhost:8080',
+                    'http://192.168.1.100:8080', // Заміни на IP твоєї WiFi мережі
+                    'http://127.0.0.1:8080'
+                ];
+
+                for (const url of possibleUrls) {
+                    try {
+                        const response = await fetch(url + '/status', {
+                            method: 'GET',
+                            mode: 'cors'
+                        });
+                        if (response.ok) {
+                            this.termuxUrl = url;
+                            this.isConnected = true;
+                            return url;
                         }
-                    }, 2000);
+                    } catch (e) {
+                        // Пропускаємо помилки - шукаємо далі
+                    }
+                }
+                return null;
+            }
+
+            async startBot() {
+                if (!this.termuxUrl) {
+                    const url = await this.discoverTermux();
+                    if (!url) {
+                        throw new Error('Termux server not found');
+                    }
+                }
+
+                const response = await fetch(this.termuxUrl + '/start_bot', {
+                    method: 'POST',
+                    mode: 'cors'
                 });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to start bot');
+                }
+                
+                return await response.json();
+            }
+
+            async stopBot() {
+                if (!this.termuxUrl) {
+                    throw new Error('Not connected to Termux');
+                }
+
+                const response = await fetch(this.termuxUrl + '/stop_bot', {
+                    method: 'POST',
+                    mode: 'cors'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to stop bot');
+                }
+                
+                return await response.json();
             }
         }
 
